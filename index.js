@@ -8,13 +8,11 @@ app.get('/favicon.ico', function (req, res) {
 });
 
 app.get(['/:bucket', '/:bucket/*'], function (req, res) {
+  
+  let bucket = req.params.bucket;
+  let path = req.path.substr(req.params.bucket.length + 2);
 
-  let bucketLength = req.params.bucket.length + 2;
-  console.log(bucketLength);
-  let path = req.path.substr(bucketLength);
-  console.log(path);
-
-  api.listObjects(req.params.bucket, path)
+  api.listObjects(bucket, path)
     .then(objects => res.json(objects))
     .catch(err => res.status(500).send(err));
 });
