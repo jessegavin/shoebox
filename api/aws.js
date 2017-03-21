@@ -2,8 +2,9 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 
-if (fs.existsSync(path.join(__dirname, 'awsconfig.json'))) {
-  AWS.config.loadFromPath('./awsconfig.json');
+const localConfigPath = path.join(__dirname, 'awsconfig.json');
+if (fs.existsSync(localConfigPath)) {
+  AWS.config.loadFromPath(localConfigPath);
 }
 
 module.exports = {

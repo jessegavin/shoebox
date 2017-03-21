@@ -7,8 +7,14 @@ app.get('/favicon.ico', function (req, res) {
   res.send('ok');
 });
 
-app.get('*', function (req, res) {
-  api.listObjects(req.path.substr(1))
+app.get(['/:bucket', '/:bucket/*'], function (req, res) {
+
+  let bucketLength = req.params.bucket.length + 2;
+  console.log(bucketLength);
+  let path = req.path.substr(bucketLength);
+  console.log(path);
+
+  api.listObjects(req.params.bucket, path)
     .then(objects => res.json(objects))
     .catch(err => res.status(500).send(err));
 });
