@@ -3,19 +3,22 @@ const s3 = aws.s3({});
 
 const get = require('lodash/get');
 const assign = require('lodash/assign');
+const trim = require('lodash/trim');
 const trimEnd = require('lodash/trimEnd');
+const last = require('lodash/last');
 
-const listObjects = (bucket, path) => {
+const listObjects = (path) => {
   
   path = path || '';
 
   if (path.length > 0) {
-    path = path === '/' ? '' : trimEnd(path, '/') + '/';
+    path = path === '/' ? '' : trim(path, '/') + '/';
   }
 
-  var options = { Bucket: bucket, Delimiter: '/', Prefix: path };
+  var options = { Bucket: process.env.S3_BUCKET_NAME, Delimiter: '/', Prefix: path };
 
   console.log(options);
+
   return new Promise((resolve, reject) => {
 
     s3.listObjects(options, (err, data) => {
@@ -26,12 +29,19 @@ const listObjects = (bucket, path) => {
 
       var files = get(data, 'Contents', [])
         .map(x => {
-          return assign({ Prefix: options.Prefix }, x);
+          return assign({ 
+            Prefix: options.Prefix,
+            Filename: last(x.Key.split('/'))
+          }, x);
         })
         .filter(x => x.Prefix !== x.Key);
 
       var folders = get(data, 'CommonPrefixes', []).map(function(commonPrefix) {
-        return decodeURIComponent(commonPrefix.Prefix);
+        let prefix = decodeURIComponent(commonPrefix.Prefix);
+        return {
+          Prefix: prefix,
+          Name: last(trimEnd(prefix, '/').split('/'))
+        }
       });
 
       resolve({
@@ -43,29 +53,21 @@ const listObjects = (bucket, path) => {
   });
 }
 
-const putObject = options => {
-  var files = document.getElementById('photoupload').files;
-  if (!files.length) {
-    return alert('Please choose a file to upload first.');
-  }
-  var file = files[0];
-  var fileName = file.name;
-  var albumPhotosKey = encodeURIComponent(albumName) + '//';
+const upload = options => {
 
-  var photoKey = albumPhotosKey + fileName;
-  s3.upload({
-    Key: photoKey,
-    Body: file,
+  var settings = assign({
     ACL: 'public-read'
-  }, function(err, data) {
+  }, options);
+
+  s3.upload(settings, function(err, data) {
     if (err) {
       return alert('There was an error uploading your photo: ', err.message);
     }
-    alert('Successfully uploaded photo.');
-    viewAlbum(albumName);
+    return data;
   });
 }
 
 module.exports = {
-  listObjects
+  listObjects,
+  upload
 };
