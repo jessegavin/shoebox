@@ -50,6 +50,8 @@
         <% }); %>
         </div>
 
+        <pre><%= JSON.stringify(files, null, 2) %></pre>
+
         <form action="<%= uploadPath %>" class="dropzone" id="dz"></form>
 
         <script src="https://cdn.jsdelivr.net/cash/1.3.0/cash.min.js"></script>

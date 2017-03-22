@@ -31,7 +31,8 @@ const listObjects = (path) => {
         .map(x => {
           return assign({ 
             Prefix: options.Prefix,
-            Filename: last(x.Key.split('/'))
+            Filename: last(x.Key.split('/')),
+            PublicUrl: `https://s3.amazonaws.com/${process.env.S3_BUCKET_NAME}/${x.Key}`
           }, x);
         })
         .filter(x => x.Prefix !== x.Key);
