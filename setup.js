@@ -1,7 +1,6 @@
 if (process.env.NODE_ENV !== 'production') {
-    const config = require('./config');
-    const fs = require('fs');
-    const chalk = require('chalk');
+    const config = require('./src/config')
+    const fs = require('fs')
 
     if (fs.existsSync('.env')) {
 
@@ -10,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
         const result = config.validate(vars);
         if (!result.ok) {
             result.errors.forEach(e => {
-                console.log(chalk.red(e));
+                console.error(e);
             });
             console.log('\n');
         }
@@ -21,6 +20,6 @@ if (process.env.NODE_ENV !== 'production') {
         }).join('\n');
 
         fs.writeFileSync('.env', text);
-        console.log(chalk.green('Please update the settings in \'.env\'!\n'));
+        console.log('Almost ready... Next step: Please update the settings in \'.env\'!\n');
     }
 }
